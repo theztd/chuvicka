@@ -14,9 +14,9 @@ FROM debian:stable-slim
 
 COPY --from=build /usr/local/bin/chuvicka /usr/local/bin/chuvicka
 COPY templates /opt/chuvicka/templates
-COPY static /opt/chuvicka/static
-COPY public /opt/chuvicka/public
-COPY v2_api.yaml /opt/chuvicka/v2_api.yaml
+# COPY static /opt/chuvicka/static
+# COPY public /opt/chuvicka/public
+# COPY v2_api.yaml /opt/chuvicka/v2_api.yaml
 
 
 WORKDIR /opt/chuvicka
