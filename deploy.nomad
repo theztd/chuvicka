@@ -17,6 +17,13 @@ variable "image" {
 job "__JOB_NAME__" {
   datacenters = var.dcs
 
+  meta {
+    fqdn = var.fqdn
+    git = "github.com/theztd/chuvicka"
+    managed = "github-pipeline"
+    image = var.image
+  }
+
   group "fe" {
     count = 1
 
@@ -37,7 +44,7 @@ job "__JOB_NAME__" {
       tags = [
         "public",
         "traefik.enable=true",
-        "traefik.http.routers.${NOMAD_JOB_NAME}-http.rule=Host(`http-${var.fqdn}`)"
+        "traefik.http.routers.${NOMAD_JOB_NAME}-http.rule=Host(`${var.fqdn}`)"
         //"traefik.http.routers.${NOMAD_JOB_NAME}-http.tls=true"
       ]
 
@@ -74,6 +81,34 @@ job "__JOB_NAME__" {
       kill_timeout = "10s"
     }
     # END NGinx task
+
+
+    task "app" {
+
+      driver = "docker"
+
+      config {
+        image      = var.image
+        force_pull = true
+
+        ports = ["app"]
+
+        labels {
+          group = "app"
+        }
+      }
+
+      env {
+        ADDRESS = ":8080"
+      }
+
+      resources {
+        cpu        = 100
+        memory     = 64
+        memory_max = 96
+      }
+
+    } # END task app
 
   } # END group FE
 
