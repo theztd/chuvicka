@@ -1,21 +1,39 @@
 package main
 
 import (
-	"log"
-	"net/http"
+	"fmt"
+	"os"
+	"theztd/chuvicka/model"
 
-	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
-// views/
-func index(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "index.tmpl", gin.H{})
-}
-
 func main() {
-	r := gin.Default()
-	r.LoadHTMLGlob("templates/*.tmpl")
-	r.GET("/", index)
-	log.Println(r.Run())
+	godotenv.Load(".env")
+
+	model.Url = os.Getenv("INFLUXDB_URL")
+	model.Token = os.Getenv("INFLUXDB_TOKEN")
+
+	if len(os.Args) < 2 {
+		fmt.Println("Required argument! (server / agent / check)")
+		os.Exit(1)
+	}
+
+	switch os.Args[1] {
+	case "server":
+		webUI()
+
+	case "agent":
+		runChecks()
+
+	case "agent2":
+		runChecks2()
+
+	case "check":
+		fmt.Println("Run status check of the configuration and resources")
+
+	default:
+		fmt.Println("Read documentation if you needs help")
+	}
 
 }

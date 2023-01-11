@@ -11,10 +11,13 @@ variable "dcs" {
 
 variable "image" {
   type = string
+  default = "ghcr.io/theztd/chuvicka:24e12e6d344a6f3a453ecfb40e7f2a69f8158ec2"
 }
 
 
-job "__JOB_NAME__" {
+//job "__JOB_NAME__" {
+
+job "chuvicka-dev" {
   datacenters = var.dcs
 
   meta {
@@ -28,8 +31,6 @@ job "__JOB_NAME__" {
     count = 1
 
     network {
-      mode = "bridge"
-
       dns {
         servers = ["172.17.0.1", "8.8.8.8", "1.1.1.1"]
       }
@@ -39,6 +40,7 @@ job "__JOB_NAME__" {
     }
 
     service {
+      provider = "nomad"
       name = "${JOB}-http"
 
       tags = [
@@ -111,5 +113,44 @@ job "__JOB_NAME__" {
     } # END task app
 
   } # END group FE
+
+  group "backend" {
+    count = 1
+
+    network {
+      dns {
+        servers = ["172.17.0.1", "8.8.8.8", "1.1.1.1"]
+      }
+      
+      port "influxdb" { 
+        static = 18086 
+        to = 8086 
+      }
+
+      
+    }
+
+    task "influx" {
+      driver = "docker"
+
+      config {
+        image = "influxdb:2.6.1"
+
+        ports = ["influxdb"]
+        
+        // myInfluxVolume:/var/lib/influxdb2
+      }
+
+      env {
+        DOCKER_INFLUXDB_INIT_MODE = "setup"
+        DOCKER_INFLUXDB_INIT_USERNAME = "chuvicka"
+        DOCKER_INFLUXDB_INIT_PASSWORD = "Heslicko"
+        DOCKER_INFLUXDB_INIT_ORG = "chuvicka"
+        DOCKER_INFLUXDB_INIT_BUCKET = "chuvicka"
+        DOCKER_INFLUXDB_INIT_RETENTION = "1w"
+      }
+
+    } # END task influx
+  } # END group backend
 
 }

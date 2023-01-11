@@ -1,1 +1,71 @@
-Hi there!
+<html>
+  <head>
+    <title>Seznam tabulek</title>
+  </head>
+  <body>
+    <h1>Seznam tabulek</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Název tabulky</th>
+          <th>Akce</th>
+        </tr>
+      </thead>
+      <tbody id="tables">
+      </tbody>
+    </table>
+    <h2>Přidat tabulku</h2>
+    <form id="add-table-form">
+      <label for="table-name">Název tabulky:</label><br>
+      <input type="text" id="table-name" name="table-name"><br>
+      <button type="submit">Přidat</button>
+    </form>
+    <script>
+      function updateTableList() {
+        fetch('/api/tables')
+          .then(response => response.json())
+          .then(retData => {
+            const tableList = document.querySelector('#tables');
+            tableList.innerHTML = '';
+            console.log(tables);
+            for (const b of retData.buckets) {
+              const row = document.createElement('tr');
+              const nameCell = document.createElement('td');
+              nameCell.innerText = b.name + " (" + b.description + ")";
+              row.appendChild(nameCell);
+              const deleteCell = document.createElement('td');
+              const deleteButton = document.createElement('button');
+              deleteButton.innerText = 'Smazat';
+              deleteButton.addEventListener('click', () => {
+                fetch(`/api/tables/${b.name}`, { method: 'DELETE' })
+                  .then(() => updateTableList());
+              });
+              deleteCell.appendChild(deleteButton);
+              row.appendChild(deleteCell);
+              tableList.appendChild(row);
+            }
+          });
+      }
+
+      updateTableList();
+
+      const addTableForm = document.querySelector('#add-table-form');
+      addTableForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const tableName = document.querySelector('#table-name').value;
+        const retentionDays = 15;
+
+        console.log("POST to /api/tables data:", tableName);
+        fetch('/api/tables', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ tableName: tableName, retentionDays: retentionDays})
+        })
+        .then(() => updateTableList());
+      });
+    </script>
+
+  </body>
+</html>
