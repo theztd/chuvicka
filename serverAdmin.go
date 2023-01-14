@@ -9,13 +9,13 @@ import (
 )
 
 // views/
-func index(ctx *gin.Context) {
+func admin(ctx *gin.Context) {
 	apps, err := model.ListBuckets()
 	if err != nil {
 		log.Println("ERR: [ListTables]", err)
 	}
 
-	ctx.HTML(http.StatusOK, "index.tmpl", gin.H{
+	ctx.HTML(http.StatusOK, "admin.tmpl", gin.H{
 		"appList": apps,
 	})
 }
@@ -66,16 +66,4 @@ func bucketCreate(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "Table has been created"})
-}
-
-func webUI() {
-	r := gin.Default()
-
-	r.LoadHTMLGlob("templates/*.tmpl")
-	r.GET("/", index)
-	r.GET("/api/tables", bucketList)
-	r.POST("/api/tables", bucketCreate)
-
-	r.Run()
-
 }

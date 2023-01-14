@@ -8,9 +8,50 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
+
+type Tags struct {
+	Key   string
+	Value string
+}
+
+type Fields struct {
+	Key   string
+	Value float32
+}
+
+type Metric struct {
+	Name   string
+	Tags   []Tags
+	Fields []Fields
+}
+
+func WriteMetric(bucket string, metric Metric) error {
+	client := influxdb2.NewClient(Url, Token)
+	writeApi := client.WriteAPIBlocking("myorg", bucket)
+
+	p := influxdb2.NewPointWithMeasurement(metric.Name)
+
+	for _, tag := range metric.Tags {
+		p.AddTag(tag.Key, tag.Value)
+	}
+
+	for _, item := range metric.Fields {
+		p.AddField(item.Key, item.Value)
+	}
+
+	p.SetTime(time.Now())
+
+	err := writeApi.WritePoint(context.Background(), p)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func ListMeasurements(bucketName string) ([]string, error) {
 	var ret []string

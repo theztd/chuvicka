@@ -1,20 +1,20 @@
 <html>
   <head>
-    <title>Uzivatelsky panel</title>
+    <title>Admin panel</title>
   </head>
   <body>
-    <h1>Seznam monitorovanych url</h1>
+    <h1>Seznam tabulek</h1>
     <table>
       <thead>
         <tr>
-          <th>Url</th>
+          <th>Název tabulky</th>
           <th>Akce</th>
         </tr>
       </thead>
       <tbody id="tables">
       </tbody>
     </table>
-    <h2>Přidat url</h2>
+    <h2>Přidat tabulku</h2>
     <form id="add-table-form">
       <label for="table-name">Název tabulky:</label><br>
       <input type="text" id="table-name" name="table-name"><br>
@@ -22,7 +22,7 @@
     </form>
     <script>
       function updateTableList() {
-        fetch('/api/metrics')
+        fetch('/api/tables')
           .then(response => response.json())
           .then(retData => {
             const tableList = document.querySelector('#tables');
@@ -31,13 +31,13 @@
             for (const b of retData.buckets) {
               const row = document.createElement('tr');
               const nameCell = document.createElement('td');
-              nameCell.innerText = b;
+              nameCell.innerText = b.name + " (" + b.description + ")";
               row.appendChild(nameCell);
               const deleteCell = document.createElement('td');
               const deleteButton = document.createElement('button');
               deleteButton.innerText = 'Smazat';
               deleteButton.addEventListener('click', () => {
-                fetch(`/api/metrics/${b.name}`, { method: 'DELETE' })
+                fetch(`/api/tables/${b.name}`, { method: 'DELETE' })
                   .then(() => updateTableList());
               });
               deleteCell.appendChild(deleteButton);
@@ -55,15 +55,13 @@
         const tableName = document.querySelector('#table-name').value;
         const retentionDays = 15;
 
-        let data = { "url": tableName};
-        console.log("POST to /api/metrics data:", data);
-        
-        fetch('/api/metrics', {
+        console.log("POST to /api/tables data:", tableName);
+        fetch('/api/tables', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(data)
+          body: JSON.stringify({ tableName: tableName, retentionDays: retentionDays})
         })
         .then(() => updateTableList());
       });

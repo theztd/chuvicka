@@ -26,9 +26,6 @@ func main() {
 	case "agent":
 		runChecks()
 
-	case "agent2":
-		runChecks2()
-
 	case "check":
 		fmt.Println("Run status check of the configuration and resources")
 
