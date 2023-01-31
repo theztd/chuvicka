@@ -19,6 +19,8 @@ func Get(url string) (ret Response, err error) {
 	start := time.Now()
 
 	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("User-Agent", "agent-chuvicka")
+
 	trace := &httptrace.ClientTrace{
 		GotConn: func(connInfo httptrace.GotConnInfo) {
 			ret.TCPConnection = int(time.Since(start))

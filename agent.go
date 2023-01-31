@@ -12,6 +12,10 @@ func getMonitoredEndpoints() []string {
 	if err != nil {
 		log.Println("ERR: [agent]", err)
 	}
+
+	// // jen propasovani na test
+	// urls = append(urls, "http://localhost:8080")
+
 	return urls
 }
 
