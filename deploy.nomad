@@ -138,6 +138,20 @@ job "chuvicka-dev" {
 
         ports = ["influxdb"]
         
+        mount {
+          type = "volume"
+          source = "files-${local.prometheus.fqdn}"
+          target = "/prometheus"
+          readonly = false
+          volume_options {
+            labels {
+              job = "${NOMAD_JOB_NAME}"
+              domain = "${local.prometheus.fqdn}"
+              backup = "true"
+              type = "files"
+            }
+          }
+        }
         // myInfluxVolume:/var/lib/influxdb2
       }
 

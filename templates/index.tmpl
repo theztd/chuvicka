@@ -1,72 +1,52 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-US">
   <head>
+    <meta charset="utf-8">
     <title>Uzivatelsky panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/main.css">
+    <link rel="stylesheet" href="/assets/status_bar.css">
   </head>
-  <body>
-    <h1>Seznam monitorovanych url</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Url</th>
-          <th>Akce</th>
-        </tr>
-      </thead>
-      <tbody id="tables">
-      </tbody>
-    </table>
-    <h2>Přidat url</h2>
-    <form id="add-table-form">
-      <label for="table-name">Název tabulky:</label><br>
-      <input type="text" id="table-name" name="table-name"><br>
-      <button type="submit">Přidat</button>
-    </form>
-    <script>
-      function updateTableList() {
-        fetch('/api/metrics')
-          .then(response => response.json())
-          .then(retData => {
-            const tableList = document.querySelector('#tables');
-            tableList.innerHTML = '';
-            console.log(tables);
-            for (const b of retData.buckets) {
-              const row = document.createElement('tr');
-              const nameCell = document.createElement('td');
-              nameCell.innerText = b;
-              row.appendChild(nameCell);
-              const deleteCell = document.createElement('td');
-              const deleteButton = document.createElement('button');
-              deleteButton.innerText = 'Smazat';
-              deleteButton.addEventListener('click', () => {
-                fetch(`/api/metrics/${b.name}`, { method: 'DELETE' })
-                  .then(() => updateTableList());
-              });
-              deleteCell.appendChild(deleteButton);
-              row.appendChild(deleteCell);
-              tableList.appendChild(row);
-            }
-          });
-      }
 
-      updateTableList();
+  <!-- Dark / Light theme -->
+  <body data-bs-theme="dark">
+  
+  
+    <div class="container">
+      <nav>
+      </nav>
 
-      const addTableForm = document.querySelector('#add-table-form');
-      addTableForm.addEventListener('submit', event => {
-        event.preventDefault();
-        const tableName = document.querySelector('#table-name').value;
-        const retentionDays = 15;
+      <main>
+        <h1>Seznam monitorovanych url</h1>
+        <table class="table">
+          <thead>
+            <tr class="table-head">
+              <th>Url</th>
+              <th></th>
+              <th>Akce</th>
+            </tr>
+          </thead>
 
-        let data = { "url": tableName};
-        console.log("POST to /api/metrics data:", data);
-        
-        fetch('/api/metrics', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        })
-        .then(() => updateTableList());
-      });
+          <tbody id="tables">
+          </tbody>
+
+        </table>
+
+        <h2>Přidat url</h2>
+        <form id="add-table-form" class="form">
+          <label for="table-name form-label">Název tabulky:</label><br>
+          <input type="text" class="form-control" id="table-name" name="table-name"><br>
+          <button type="submit" class="btn btn-primary">Přidat</button>
+        </form>
+
+      </main>
+    </div>
+
+    <script src="/assets/api.js">
+    </script>
+    <script src="/assets/bootstrap.bundle.min.js">
     </script>
 
   </body>

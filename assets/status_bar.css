@@ -1,0 +1,44 @@
+#status_bar, .bar {
+    margin: 0;
+    padding: 0;
+    height: 28px;
+    float: right;
+}
+
+.bar {
+    float: left;
+    width: 4px;
+    margin: 1px;
+    background-color: #CCC;
+    border-color: #FFF;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.ok {
+    background-color: #af9;
+    border-color: #4c3;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.warning {
+    background-color: #FB4;
+    border-color: #C80;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.critical {
+    background-color: #F66;
+    border-color: #b22;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.no-data {
+    background-color: #AAA;
+    border-color: #666;
+    border-width: 1px;
+    border-style: solid;
+}

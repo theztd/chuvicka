@@ -10,10 +10,6 @@ import (
 
 // views/
 func index(ctx *gin.Context) {
-	// apps, err := model.ListBuckets()
-	// if err != nil {
-	// 	log.Println("ERR: [ListTables]", err)
-	// }
 
 	ctx.HTML(http.StatusOK, "index.tmpl", gin.H{
 		// "appList": apps,
@@ -21,18 +17,25 @@ func index(ctx *gin.Context) {
 }
 
 func metricList(ctx *gin.Context) {
-	metricUrls, err := model.ListMeasurements("chuvicka")
+	metricUrls, err := model.ListMeasurements(bucketName)
+
+	graphData := map[string][]model.MetricResult{}
+	for _, url := range metricUrls {
+		graphData[url], _ = model.GetMetrics(bucketName, url)
+	}
 
 	if err != nil {
 		ctx.JSON(http.StatusOK, gin.H{
-			"buckets": []string{},
-			"status":  err,
+			"buckets":   []string{},
+			"status":    err,
+			"graphData": graphData,
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"buckets": metricUrls,
-		"status":  "Ok",
+		"buckets":   metricUrls,
+		"status":    "Ok",
+		"graphData": graphData,
 	})
 	return
 }
@@ -52,7 +55,7 @@ func metricCreate(ctx *gin.Context) {
 	log.Println("DEBUG: [server] received json data", input.Url)
 
 	// get retention in day, convert it to seconds
-	err := model.WriteMetric("chuvicka", model.Metric{
+	err := model.WriteMetric(bucketName, model.Metric{
 		Name: "http_endpoint",
 		Tags: []model.Tags{
 			{Key: "url", Value: input.Url},
@@ -78,10 +81,25 @@ func metricDelete(ctx *gin.Context) {
 	})
 }
 
+func metricGet(ctx *gin.Context) {
+	type inData struct {
+		Url string `json:"url"`
+	}
+
+	input := inData{}
+
+	model.GetMetrics(bucketName, input.Url)
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg":    "Have to be implemented soon",
+		"status": "Ok",
+	})
+}
+
 func webUI() {
 	r := gin.Default()
 
 	r.LoadHTMLGlob("templates/*.tmpl")
+	r.Static("/assets", "./assets")
 	r.GET("/", index)
 	r.GET("/api/metrics", metricList)
 	r.POST("/api/metrics", metricCreate)
