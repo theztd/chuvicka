@@ -1,12 +1,9 @@
-package model
+package influx
 
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -114,52 +111,4 @@ func ListMeasurements(bucketName string) ([]string, error) {
 	}
 
 	return ret, nil
-}
-
-func ListMeasurementsAPI(bucketName string) ([]string, error) {
-	data := url.Values{}
-
-	/*
-		FLUX format
-
-		import "influxdata/influxdb/schema"
-
-		schema.measurementTagValues(
-		bucket: "chuvicka",
-		measurement: "http_endpoint",
-		tag: "url"
-		)
-	*/
-	// FLUX format
-	fluxQ := `import "influxdata/influxdb/schema"
-		schema.measurementTagValues(
-		bucket: "%s",
-		measurement: "http_endpoint",
-		tag: "url")`
-
-	data.Set("q", fmt.Sprintf(fluxQ, bucketName))
-
-	// Old format
-	//data.Set("q", fmt.Sprintf("SELECT url FROM %s.http_endpoint", bucketName))
-	req, err := http.NewRequest("POST", Url+"/api/v2/query?orgID=c89dcc5170f3030a", strings.NewReader(data.Encode()))
-	if err != nil {
-		log.Println("ERR: [influx]", err)
-	}
-	req.Header.Add("Authorization", "Token "+Token)
-	req.Header.Add("Content-Type", "application/vnd.flux")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Println("ERR: [influx]", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Println("ERR:", err)
-	}
-	log.Println(resp.StatusCode, resp.Status, string(body))
-
-	return []string{}, nil
 }

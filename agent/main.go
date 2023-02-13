@@ -1,39 +1,27 @@
-package main
+package agent
 
 import (
 	"fmt"
 	"log"
-	"theztd/chuvicka/httpCheck"
-	"theztd/chuvicka/model"
+	"theztd/chuvicka/agent/httpCheck"
+	"theztd/chuvicka/metrics/influx"
 )
 
-func getMonitoredEndpoints() []string {
-	urls, err := model.ListMeasurements("chuvicka")
-	if err != nil {
-		log.Println("ERR: [agent]", err)
-	}
-
-	// // jen propasovani na test
-	// urls = append(urls, "http://localhost:8080")
-
-	return urls
-}
-
-func runChecks() {
-	for _, url := range getMonitoredEndpoints() {
+func RunChecks(endpoints []string) {
+	for _, url := range endpoints {
 		log.Println("INFO: [Agent] measure", url)
 
 		// Run check
 		result, _ := httpCheck.Get(url)
 
 		// Report measured metrics
-		err := model.WriteMetric("chuvicka", model.Metric{
+		err := influx.WriteMetric("chuvicka", influx.Metric{
 			Name: "http_endpoint",
-			Tags: []model.Tags{
+			Tags: []influx.Tags{
 				{Key: "url", Value: url},
 				{Key: "StatusCode", Value: fmt.Sprintf("%d", result.StatusCode)},
 			},
-			Fields: []model.Fields{
+			Fields: []influx.Fields{
 				{Key: "TTFB", Value: float32(result.TTFB)},
 				{Key: "TCPConnection", Value: float32(result.TCPConnection)},
 				{Key: "TLSHandshake", Value: float32(result.TLSHandshake)},

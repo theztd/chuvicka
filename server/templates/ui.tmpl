@@ -1,21 +1,8 @@
-<!DOCTYPE html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8">
-    <title>Uzivatelsky panel</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="/assets/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/main.css">
-    <link rel="stylesheet" href="/assets/status_bar.css">
-  </head>
+{{ template "header.tmpl"}}
 
-  <!-- Dark / Light theme -->
-  <body data-bs-theme="dark">
-  
-  
     <div class="container">
       <nav>
+        <a href="/logout">Logout</a>
       </nav>
 
       <main>
@@ -36,7 +23,7 @@
 
         <h2>Přidat url</h2>
         <form id="add-table-form" class="form">
-          <label for="table-name form-label">Název tabulky:</label><br>
+          <label for="table-name form-label">Add new endpoint:</label><br>
           <input type="text" class="form-control" id="table-name" name="table-name"><br>
           <button type="submit" class="btn btn-primary">Přidat</button>
         </form>

@@ -5,13 +5,13 @@ function updateTableList() {
         const tableList = document.querySelector('#tables');
         tableList.innerHTML = '';
         console.log(tables);
-        for (const b of retData.buckets) {
+        for (const ep of retData.buckets) {
 
           const row = document.createElement('tr');
           
           // Pridani sloupce s URL
           const nameCell = document.createElement('td');
-          nameCell.innerText = b;
+          nameCell.innerText = ep.Url;
           row.appendChild(nameCell);
 
           // Pridani sloupce se statusem
@@ -22,7 +22,10 @@ function updateTableList() {
             // definice kde se zacal endpoint merit
             let start = Math.floor(Math.random() * 10) + 3;
 
-            for (const dat of retData.graphData[b].slice(-30)) {
+            console.log(ep);
+            console.log(retData);
+
+            for (const dat of retData.graphData[ep.Url].slice(-30)) {
               const barItem = document.createElement('div');
 
               const sc = dat.StatusCode;
@@ -47,26 +50,6 @@ function updateTableList() {
               
               statusBar.appendChild(barItem);
             }
-
-
-            // Vygenerovani zizaly
-            // for (let i = 0; i <= 30; i++) {
-            //   const barItem = document.createElement('div');
-
-            //   // seda oblast
-            //   if (i < start) {
-            //     barItem.className = "bar";
-            //   } else {
-
-            //     if (i > Math.floor(Math.random() * 30) + start) {
-            //       barItem.className = "bar red";
-            //     } else {
-            //       barItem.className = "bar green";
-            //     }
-            //   }
-              
-            //   statusBar.appendChild(barItem);
-            // }
             
 
             statusCell.appendChild(statusBar);
@@ -80,7 +63,7 @@ function updateTableList() {
                 deleteButton.className = "btn-danger btn";
                 deleteButton.innerText = 'x';
                 deleteButton.addEventListener('click', () => {
-                    fetch(`/api/metrics/${b.name}`, { method: 'DELETE' })
+                    fetch(`/api/metrics/${ep.name}`, { method: 'DELETE' })
                         .then(() => updateTableList());
                     });
           

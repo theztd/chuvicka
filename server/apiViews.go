@@ -1,9 +1,10 @@
-package main
+package server
 
 import (
 	"log"
 	"net/http"
-	"theztd/chuvicka/model"
+	"theztd/chuvicka/metrics"
+	"theztd/chuvicka/metrics/influx"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,17 +12,17 @@ import (
 // views/
 func index(ctx *gin.Context) {
 
-	ctx.HTML(http.StatusOK, "index.tmpl", gin.H{
+	ctx.HTML(http.StatusOK, "ui.tmpl", gin.H{
 		// "appList": apps,
 	})
 }
 
 func metricList(ctx *gin.Context) {
-	metricUrls, err := model.ListMeasurements(bucketName)
+	eps, err := metrics.List()
 
-	graphData := map[string][]model.MetricResult{}
-	for _, url := range metricUrls {
-		graphData[url], _ = model.GetMetrics(bucketName, url)
+	graphData := map[string][]influx.MetricResult{}
+	for _, ep := range eps {
+		graphData[ep.Url], _ = influx.GetMetrics(BucketName, ep.Url)
 	}
 
 	if err != nil {
@@ -33,7 +34,7 @@ func metricList(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"buckets":   metricUrls,
+		"buckets":   eps,
 		"status":    "Ok",
 		"graphData": graphData,
 	})
@@ -55,16 +56,9 @@ func metricCreate(ctx *gin.Context) {
 	log.Println("DEBUG: [server] received json data", input.Url)
 
 	// get retention in day, convert it to seconds
-	err := model.WriteMetric(bucketName, model.Metric{
-		Name: "http_endpoint",
-		Tags: []model.Tags{
-			{Key: "url", Value: input.Url},
-			{Key: "StatusCode", Value: "999"},
-		},
-		Fields: []model.Fields{
-			{Key: "ResponseTime", Value: 999},
-		},
-	})
+	newEp := metrics.Endpoint{}
+	newEp.Url = input.Url
+	err := newEp.Add()
 	if err != nil {
 		log.Println("ERR: [server]", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "Unable to process your request"})
@@ -81,35 +75,16 @@ func metricDelete(ctx *gin.Context) {
 	})
 }
 
-func metricGet(ctx *gin.Context) {
-	type inData struct {
-		Url string `json:"url"`
-	}
+// func metricGet(ctx *gin.Context) {
+// 	type inData struct {
+// 		Url string `json:"url"`
+// 	}
 
-	input := inData{}
+// 	input := inData{}
 
-	model.GetMetrics(bucketName, input.Url)
-	ctx.JSON(http.StatusOK, gin.H{
-		"msg":    "Have to be implemented soon",
-		"status": "Ok",
-	})
-}
-
-func webUI() {
-	r := gin.Default()
-
-	r.LoadHTMLGlob("templates/*.tmpl")
-	r.Static("/assets", "./assets")
-	r.GET("/", index)
-	r.GET("/api/metrics", metricList)
-	r.POST("/api/metrics", metricCreate)
-	r.DELETE("/api/metrics/", metricDelete)
-
-	// Admin part
-	r.GET("/admin", admin)
-	r.GET("/api/tables", bucketList)
-	r.POST("/api/tables", bucketCreate)
-
-	r.Run()
-
-}
+// 	influx.GetMetrics(BucketName, input.Url)
+// 	ctx.JSON(http.StatusOK, gin.H{
+// 		"msg":    "Have to be implemented soon",
+// 		"status": "Ok",
+// 	})
+// }

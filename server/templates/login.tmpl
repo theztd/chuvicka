@@ -1,0 +1,31 @@
+{{ template "header.tmpl"}}
+
+    <div class="container">
+      <h2>Authorize</h2>
+
+        <form id="login-form" class="form" method="post" action="/login">
+          <label for="login form-label">Username:</label><br>
+          <input 
+            type="text"
+            class="form-control"
+            id="login"
+            name="login"
+            placeholder="LoginName">
+          <br>
+
+          <label for="login form-label">Password:</label><br>
+          <input 
+            type="password"
+            class="form-control"
+            id="login"
+            name="password"
+            placeholder="***">
+          <br>
+
+
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+
+ </body>
+</html>

@@ -12,3 +12,13 @@ services:
       - DOCKER_INFLUXDB_INIT_ORG=myorg
       - DOCKER_INFLUXDB_INIT_BUCKET=chuvicka
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=$INFLUXDB_TOKEN
+
+  postgres:
+    image: 'postgres:15'
+    ports:
+      - 5432:5432
+
+    environment:
+      POSTGRES_USER: chuvicka
+      POSTGRES_PASSWORD: passwordChuvicka
+      POSTGRES_DB: chuvicka
