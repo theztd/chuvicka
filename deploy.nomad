@@ -35,8 +35,8 @@ job "chuvicka-dev" {
         servers = ["172.17.0.1", "8.8.8.8", "1.1.1.1"]
       }
       
-      port "app" { to = 8080 }
-      port "http" { to = 80 }
+      port "server" { to = 8080 }
+      // port "http" { to = 80 }
     }
 
     service {
@@ -50,50 +50,19 @@ job "chuvicka-dev" {
         //"traefik.http.routers.${NOMAD_JOB_NAME}-http.tls=true"
       ]
 
-      port = "http"
+      port = "server"
     }
 
-    task "nginx" {
-      driver = "docker"
-
-      config {
-        image = "nginx:1.21"
-
-        volumes = [
-          "local:/etc/nginx/conf.d",
-        ]
-
-        ports = ["http"]
-      }
-
-      template {
-        destination = "local/default.conf"
-        perms       = "644"
-        data        = file("nginx.conf")
-      }
-
-      # Resources:    https://www.nomadproject.io/docs/job-specification/resources
-      resources {
-        cpu        = 100 # MHz
-        memory     = 16  # MB
-        memory_max = 64  #MB
-      }
-
-
-      kill_timeout = "10s"
-    }
-    # END NGinx task
-
-
-    task "app" {
+    task "server" {
 
       driver = "docker"
 
       config {
         image      = var.image
         force_pull = true
+        command = ["server"]
 
-        ports = ["app"]
+        ports = ["server"]
 
         labels {
           group = "app"
@@ -114,57 +83,57 @@ job "chuvicka-dev" {
 
   } # END group FE
 
-  group "backend" {
-    count = 1
+  // group "backend" {
+  //   count = 1
 
-    network {
-      dns {
-        servers = ["172.17.0.1", "8.8.8.8", "1.1.1.1"]
-      }
+  //   network {
+  //     dns {
+  //       servers = ["172.17.0.1", "8.8.8.8", "1.1.1.1"]
+  //     }
       
-      port "influxdb" { 
-        static = 18086 
-        to = 8086 
-      }
+  //     port "influxdb" { 
+  //       static = 18086 
+  //       to = 8086 
+  //     }
 
       
-    }
+  //   }
 
-    task "influx" {
-      driver = "docker"
+  //   task "influx" {
+  //     driver = "docker"
 
-      config {
-        image = "influxdb:2.6.1"
+  //     config {
+  //       image = "influxdb:2.6.1"
 
-        ports = ["influxdb"]
+  //       ports = ["influxdb"]
         
-        mount {
-          type = "volume"
-          source = "files-${local.prometheus.fqdn}"
-          target = "/prometheus"
-          readonly = false
-          volume_options {
-            labels {
-              job = "${NOMAD_JOB_NAME}"
-              domain = "${local.prometheus.fqdn}"
-              backup = "true"
-              type = "files"
-            }
-          }
-        }
-        // myInfluxVolume:/var/lib/influxdb2
-      }
+  //       mount {
+  //         type = "volume"
+  //         source = "files-${local.prometheus.fqdn}"
+  //         target = "/prometheus"
+  //         readonly = false
+  //         volume_options {
+  //           labels {
+  //             job = "${NOMAD_JOB_NAME}"
+  //             domain = "${local.prometheus.fqdn}"
+  //             backup = "true"
+  //             type = "files"
+  //           }
+  //         }
+  //       }
+  //       // myInfluxVolume:/var/lib/influxdb2
+  //     }
 
-      env {
-        DOCKER_INFLUXDB_INIT_MODE = "setup"
-        DOCKER_INFLUXDB_INIT_USERNAME = "chuvicka"
-        DOCKER_INFLUXDB_INIT_PASSWORD = "Heslicko"
-        DOCKER_INFLUXDB_INIT_ORG = "chuvicka"
-        DOCKER_INFLUXDB_INIT_BUCKET = "chuvicka"
-        DOCKER_INFLUXDB_INIT_RETENTION = "1w"
-      }
+  //     env {
+  //       DOCKER_INFLUXDB_INIT_MODE = "setup"
+  //       DOCKER_INFLUXDB_INIT_USERNAME = "chuvicka"
+  //       DOCKER_INFLUXDB_INIT_PASSWORD = "Heslicko"
+  //       DOCKER_INFLUXDB_INIT_ORG = "chuvicka"
+  //       DOCKER_INFLUXDB_INIT_BUCKET = "chuvicka"
+  //       DOCKER_INFLUXDB_INIT_RETENTION = "1w"
+  //     }
 
-    } # END task influx
-  } # END group backend
+  //   } # END task influx
+  // } # END group backend
 
 }
