@@ -15,7 +15,13 @@ import (
 )
 
 func loadConf() {
-	godotenv.Load(".env")
+	env := os.Getenv("ENV")
+	if len(env) < 1 {
+		env = "devel"
+	}
+	log.Println("Running env", env)
+
+	godotenv.Load(".env-" + env)
 
 	influx.Url = os.Getenv("INFLUXDB_URL")
 	influx.Token = os.Getenv("INFLUXDB_TOKEN")

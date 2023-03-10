@@ -25,32 +25,35 @@ function updateTableList() {
             console.log(ep);
             console.log(retData);
 
-            for (const dat of retData.graphData[ep.Url].slice(-30)) {
-              const barItem = document.createElement('div');
+            if (retData.graphData[ep.Url] != null ) {
+              for (const dat of retData.graphData[ep.Url].slice(-30)) {
+                const barItem = document.createElement('div');
 
-              const sc = dat.StatusCode;
-              console.log(sc);
-              switch (true) {
-                case (sc < 200):
-                  barItem.className = "bar no-data";
-                  break;
-                case (199 < sc && sc < 400):
-                  barItem.className = "bar ok";
-                  break;
-                case (399 < sc && sc < 500):
-                  barItem.className = "bar warning";
-                  break;
-                case (sc > 499):
-                  barItem.className = "bar critical";
-                  break;
-                default:
-                  barItem.className = "bar";
+                const sc = dat.StatusCode;
+                console.log(sc);
+                switch (true) {
+                  case (sc < 200):
+                    barItem.className = "bar no-data";
+                    break;
+                  case (199 < sc && sc < 400):
+                    barItem.className = "bar ok";
+                    break;
+                  case (399 < sc && sc < 500):
+                    barItem.className = "bar warning";
+                    break;
+                  case (sc > 499):
+                    barItem.className = "bar critical";
+                    break;
+                  default:
+                    barItem.className = "bar";
+                }
+                barItem.title = "Status: " + dat.StatusCode + ", Time: " + dat.Time + ")";
+                
+                statusBar.appendChild(barItem);
               }
-              barItem.title = "Status: " + dat.StatusCode + ", Time: " + dat.Time + ")";
-              
-              statusBar.appendChild(barItem);
+            } else {
+              statusBar.innerText = "No Data";
             }
-            
 
             statusCell.appendChild(statusBar);
 
