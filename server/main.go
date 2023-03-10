@@ -1,14 +1,23 @@
 package server
 
 import (
+	"embed"
+	"html/template"
 	"log"
 	"net/http"
+	"path"
 	"theztd/chuvicka/auth"
 
 	"github.com/gin-gonic/gin"
 )
 
 var BucketName string
+
+//go:embed templates/*.tmpl
+var templatesFS embed.FS
+
+//go:embed assets
+var staticFS embed.FS
 
 func validate(ctx *gin.Context) {
 	authToken, err := ctx.Cookie("Authorization")
@@ -36,8 +45,14 @@ func validate(ctx *gin.Context) {
 func Run() {
 	r := gin.Default()
 
-	r.LoadHTMLGlob("server/templates/*.tmpl")
-	r.Static("/assets", "./server/assets")
+	tmpl := template.Must(template.ParseFS(templatesFS, "templates/*.tmpl"))
+	r.SetHTMLTemplate(tmpl)
+
+	// r.LoadHTMLGlob("server/templates/*.tmpl")
+	// r.Static("/assets", "./server/assets")
+	r.GET("/assets/*filepath", func(c *gin.Context) {
+		c.FileFromFS(path.Join("/", c.Request.URL.Path), http.FS(staticFS))
+	})
 
 	r.GET("/ui", validate, index)
 	r.GET("/api/metrics", validate, metricList)
