@@ -11,13 +11,13 @@ variable "dcs" {
 
 variable "image" {
   type    = string
-  default = "ghcr.io/theztd/chuvicka:24e12e6d344a6f3a453ecfb40e7f2a69f8158ec2"
+  default = "ghcr.io/theztd/chuvicka:main"
 }
 
 
 //job "__JOB_NAME__" {
 
-job "chuvicka-dev" {
+job "chuvicka" {
   datacenters = var.dcs
 
   meta {
@@ -59,7 +59,7 @@ job "chuvicka-dev" {
       config {
         image      = var.image
         force_pull = true
-        command    = ["server"]
+        args    = ["server"]
 
         ports = ["server"]
 
@@ -70,14 +70,17 @@ job "chuvicka-dev" {
 
       template {
         env         = true
+        // data        = <<EOH
+          // {{ range nomadVarListSafe }}
+          //   {{ . }}
+          // {{ end }}
         data        = <<EOH
-          {{ range nomadVarList }}
-            {{ . }}
-          {{ end }}
-          }
-          EOH
+          # meta
+          {{ with nomadVar "nomad/jobs/chuvicka" }}{{ .Parent.Items | sprig_toJson | parseJSON | toTOML }}{{end}}
+        EOH
         change_mode = "restart"
-        destination = "${NOMAD_SECRETS_DIR}/.secret-env"
+        //destination = "${NOMAD_SECRETS_DIR}/.secret-env"
+        destination = "local/variables"
       }
 
       env {
@@ -85,9 +88,9 @@ job "chuvicka-dev" {
       }
 
       resources {
-        cpu        = 100
-        memory     = 64
-        memory_max = 96
+        cpu        = 300
+        memory     = 128
+        memory_max = 256
       }
 
     } # END task app
