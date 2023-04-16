@@ -69,22 +69,15 @@ func metricCreate(ctx *gin.Context) {
 }
 
 func metricDelete(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{
-		"msg":    "Have to be implemented soon",
-		"status": "Ok",
-	})
+	id := ctx.Param("id")
+
+	ep := metrics.Endpoint{}
+	err := metrics.DB.Delete(&ep, id)
+	if err != nil {
+		log.Println("ERR: [server]", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "Unable to delete requested endpoint."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "Metric has been created"})
 }
-
-// func metricGet(ctx *gin.Context) {
-// 	type inData struct {
-// 		Url string `json:"url"`
-// 	}
-
-// 	input := inData{}
-
-// 	influx.GetMetrics(BucketName, input.Url)
-// 	ctx.JSON(http.StatusOK, gin.H{
-// 		"msg":    "Have to be implemented soon",
-// 		"status": "Ok",
-// 	})
-// }

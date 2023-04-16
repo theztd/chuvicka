@@ -14,7 +14,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func loadConf() {
+func init() {
 	env := os.Getenv("ENV")
 	if len(env) < 1 {
 		env = "devel"
@@ -45,7 +45,7 @@ func loadConf() {
 }
 
 func main() {
-	loadConf()
+	//loadConf()
 	if auth.Connect() != nil {
 		log.Panicln("Exit!")
 	}
@@ -53,6 +53,7 @@ func main() {
 	if metrics.Connect() != nil {
 		log.Panicln("Exit!")
 	}
+
 	metrics.Migrate()
 	log.Println("DEBUG: Metrics DB migration...")
 
@@ -92,11 +93,17 @@ func main() {
 		}
 
 	case "useradd":
-		newUser := auth.User{}
-		newUser.Email = "karel@pokusnak.com"
-		newUser.Login = "kaja"
-		newUser.HashPassword("tajne")
-		newUser.Register()
+		newUser1 := auth.User{}
+		newUser1.Email = "kaja@pokusnak.com"
+		newUser1.Login = "karel"
+		newUser1.HashPassword("tajne")
+		newUser1.Register()
+
+		newUser2 := auth.User{}
+		newUser2.Email = "pepa@testik.com"
+		newUser2.Login = "pepa"
+		newUser2.HashPassword("heslo")
+		newUser2.Register()
 
 	case "auth":
 		login, password := "kaja", "tajne"

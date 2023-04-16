@@ -52,7 +52,7 @@ function updateTableList() {
                 statusBar.appendChild(barItem);
               }
             } else {
-              statusBar.innerText = "No Data";
+              statusBar.innerText = "Waiting for data...";
             }
 
             statusCell.appendChild(statusBar);
@@ -66,7 +66,7 @@ function updateTableList() {
                 deleteButton.className = "btn-danger btn";
                 deleteButton.innerText = 'x';
                 deleteButton.addEventListener('click', () => {
-                    fetch(`/api/metrics/${ep.name}`, { method: 'DELETE' })
+                    fetch(`/api/metrics/${ep.ID}`, { method: 'DELETE' })
                         .then(() => updateTableList());
                     });
           

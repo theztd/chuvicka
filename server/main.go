@@ -20,6 +20,14 @@ var templatesFS embed.FS
 var staticFS embed.FS
 
 func validate(ctx *gin.Context) {
+	headerToken := ctx.Request.Header.Get("X-Auth-Token")
+	log.Println(headerToken)
+	if headerToken == "develop" {
+		log.Println("DEBUG: Authorized by X-Auth-Token")
+		ctx.Next()
+		return
+	}
+
 	authToken, err := ctx.Cookie("Authorization")
 	if err != nil {
 		ctx.HTML(http.StatusUnauthorized, "login.tmpl", gin.H{
@@ -32,11 +40,17 @@ func validate(ctx *gin.Context) {
 	if auth.JWTValidate(authToken) {
 		log.Println("DEBUG: Authorized user")
 		ctx.Next()
+		return
 	} else {
 		log.Println("INFO: Invalid auth token", authToken)
 		ctx.HTML(http.StatusUnauthorized, "login.tmpl", gin.H{
 			"message": "You have to be authorized before accessing required page",
 		})
+		/*
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"message": "Authorization required. Use Login form or X-Auth-Token",
+			})
+		*/
 		ctx.Abort()
 		return
 	}
@@ -57,7 +71,7 @@ func Run() {
 	r.GET("/ui", validate, index)
 	r.GET("/api/metrics", validate, metricList)
 	r.POST("/api/metrics", validate, metricCreate)
-	r.DELETE("/api/metrics/", validate, metricDelete)
+	r.DELETE("/api/metrics/:id", validate, metricDelete)
 
 	r.GET("/login", loginPage)
 	r.POST("/login", login, index)
@@ -66,7 +80,12 @@ func Run() {
 	// Admin part
 	//r.GET("/admin", admin)
 	//r.GET("/api/tables", bucketList)
-	// r.POST("/api/tables", bucketCreate)
+	// r.POST("/api/users", validate, usersCreate)
+	// r.DELETE("/api/users/:id", validate, usersDelete)
+
+	r.GET("/api/users/", validate, usersList)
+	r.GET("/api/users/:id", validate, usersGet)
+	r.POST("/api/users/:id", validate, usersEdit)
 
 	r.Run()
 

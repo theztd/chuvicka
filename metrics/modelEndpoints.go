@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 
 type Endpoint struct {
 	gorm.Model
@@ -17,13 +17,13 @@ type Endpoint struct {
 
 // psql:listEndpoints()
 func List() (results []Endpoint, err error) {
-	err = db.Table("endpoints").Where("active = ?", true).Find(&results).Error
+	err = DB.Table("endpoints").Where("active = ?", true).Find(&results).Error
 	return results, err
 }
 
 // psql:addEndpoint()
 func (e *Endpoint) Add() error {
-	err := db.Create(e).Error
+	err := DB.Create(e).Error
 	if err != nil {
 		log.Println("ERR: Unable to add endpoint", err)
 	}
@@ -32,5 +32,6 @@ func (e *Endpoint) Add() error {
 
 // psql:delEndpoint()
 func (e *Endpoint) Del() error {
+	DB.Where("url LIKE ?", e.Url).Delete(e)
 	return nil
 }

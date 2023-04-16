@@ -14,11 +14,18 @@ var db *gorm.DB
 
 type User struct {
 	gorm.Model
-	Login    string       `json:"username" gorm:"unique"`
+	Login    string       `json:"login" gorm:"unique"`
 	Email    string       `json:"email" gorm:"unique"`
 	Password string       `json:"password"`
 	Active   sql.NullBool `gorm:"default:true"`
 	Token    string       `gorm:"-"` // ignore field from DB
+}
+
+type UserRead struct {
+	ID     uint
+	Email  string
+	Login  string
+	Active sql.NullBool
 }
 
 func (usr *User) HashPassword(password string) error {

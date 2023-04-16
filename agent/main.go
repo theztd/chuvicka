@@ -11,7 +11,7 @@ func RunChecks(endpoints []string) {
 	for _, url := range endpoints {
 		log.Println("INFO: [Agent] measure", url)
 
-		// Run check
+		// Run httpCheck
 		result, _ := httpCheck.Get(url)
 
 		// Report measured metrics

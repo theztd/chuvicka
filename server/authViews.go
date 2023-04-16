@@ -61,3 +61,7 @@ func logout(ctx *gin.Context) {
 		"msg": "Successfully logout",
 	})
 }
+
+func delete(ctx *gin.Context) {
+
+}
