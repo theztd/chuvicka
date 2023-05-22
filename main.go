@@ -86,13 +86,13 @@ func main() {
 		/*
 			Add endpoint to monitoring
 		*/
-		for _, url := range []string{"https://www.google.com", "https://www.root.cz", "https://troll.fejk.net/v1/sloooowww"} {
+		for _, url := range []string{"https://www.google.com", "http://localhost:8080/_healthz/ready.json", "https://troll.fejk.net/v1/sloooowww"} {
 			newEp := metrics.Endpoint{}
 			newEp.Url = url
 			newEp.Add()
 		}
 
-	case "useradd":
+	case "init-users":
 		newUser1 := auth.User{}
 		newUser1.Email = "kaja@pokusnak.com"
 		newUser1.Login = "karel"

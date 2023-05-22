@@ -19,6 +19,7 @@ type User struct {
 	Password string       `json:"password"`
 	Active   sql.NullBool `gorm:"default:true"`
 	Token    string       `gorm:"-"` // ignore field from DB
+	ApiToken string       `gorm:"api_token"`
 }
 
 type UserRead struct {

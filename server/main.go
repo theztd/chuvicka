@@ -7,9 +7,13 @@ import (
 	"net/http"
 	"path"
 	"theztd/chuvicka/auth"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
+
+var VERSION string = "0.1.0-alpha01"
 
 var BucketName string
 
@@ -22,6 +26,15 @@ var staticFS embed.FS
 func validate(ctx *gin.Context) {
 	headerToken := ctx.Request.Header.Get("X-Auth-Token")
 	log.Println(headerToken)
+
+	/*
+
+
+		TODO: Implement token auth, token is already in model
+
+
+
+	*/
 	if headerToken == "develop" {
 		log.Println("DEBUG: Authorized by X-Auth-Token")
 		ctx.Next()
@@ -67,6 +80,19 @@ func Run() {
 	r.GET("/assets/*filepath", func(c *gin.Context) {
 		c.FileFromFS(path.Join("/", c.Request.URL.Path), http.FS(staticFS))
 	})
+
+	// CORS allow all
+	// r.Use(cors.Default())
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"*"},
+		AllowCredentials: true,
+		MaxAge:           6 * time.Hour,
+	}))
+
+	r.GET("/_healthz/ready.json", healthStatus)
 
 	r.GET("/ui", validate, index)
 	r.GET("/api/metrics", validate, metricList)
