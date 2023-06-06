@@ -18,3 +18,10 @@ type Response struct {
 	TLSHandshake  int
 	ResponseTime  int
 }
+
+type Endpoint struct {
+	Url     string
+	Method  string
+	Data    map[string]interface{}
+	Headers map[string]string
+}

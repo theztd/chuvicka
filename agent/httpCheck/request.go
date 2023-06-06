@@ -1,5 +1,5 @@
 /*
-	Muj kod, ktery je rychly a plne funkcni
+Muj kod, ktery je rychly a plne funkcni
 */
 package httpCheck
 
@@ -10,16 +10,21 @@ import (
 	"time"
 )
 
-func Get(url string) (ret Response, err error) {
+func Request(e Endpoint) (ret Response, err error) {
 	// returning time in miliseconds
 	err = nil
 	ret = Response{
-		Url: url,
+		Url: e.Url,
 	}
 	start := time.Now()
 
-	req, _ := http.NewRequest("GET", url, nil)
+	req, _ := http.NewRequest(e.Method, e.Url, nil)
 	req.Header.Add("User-Agent", "agent-chuvicka")
+	if len(e.Headers) > 0 {
+		for k, v := range e.Headers {
+			req.Header.Add(k, v)
+		}
+	}
 
 	trace := &httptrace.ClientTrace{
 		GotConn: func(connInfo httptrace.GotConnInfo) {

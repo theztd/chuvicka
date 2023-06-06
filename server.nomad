@@ -50,6 +50,22 @@ job "chuvicka" {
         "traefik.http.routers.${NOMAD_JOB_NAME}-http.rule=Host(`${var.fqdn}`)"
         //"traefik.http.routers.${NOMAD_JOB_NAME}-http.tls=true"
       ]
+
+      /*
+      // requires consul
+      check {
+        name = "run-agent"
+        type = "script"
+        interval = "30s"
+        timeout = "25s"
+        initial_status = "passing"
+        failures_before_critical = 10
+        command = "/usr/local/bin/chuvicka"
+        args = ["agent"]
+        task = "server"
+        on_update = "ignore_warnings"
+      }
+      */
     }
 
     task "server" {
@@ -70,17 +86,12 @@ job "chuvicka" {
 
       template {
         env         = true
-        // data        = <<EOH
-          // {{ range nomadVarListSafe }}
-          //   {{ . }}
-          // {{ end }}
         data        = <<EOH
           # meta
           {{ with nomadVar "nomad/jobs/chuvicka" }}{{ .Parent.Items | sprig_toJson | parseJSON | toTOML }}{{end}}
         EOH
         change_mode = "restart"
-        //destination = "${NOMAD_SECRETS_DIR}/.secret-env"
-        destination = "local/variables"
+        destination = "local/.secret-env"
       }
 
       env {

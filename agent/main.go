@@ -12,7 +12,8 @@ func RunChecks(endpoints []string) {
 		log.Println("INFO: [Agent] measure", url)
 
 		// Run httpCheck
-		result, _ := httpCheck.Get(url)
+		// Headers: map[string]string{"x": "1", "a": "23"}
+		result, _ := httpCheck.Request(httpCheck.Endpoint{Url: url, Method: "GET"})
 
 		// Report measured metrics
 		err := influx.WriteMetric("chuvicka", influx.Metric{
