@@ -3,15 +3,15 @@ package server
 import (
 	"log"
 	"net/http"
-	"theztd/chuvicka/auth"
+	authModel "theztd/chuvicka/auth/model"
 	"theztd/chuvicka/metrics"
 
 	"github.com/gin-gonic/gin"
 )
 
 func usersList(ctx *gin.Context) {
-	users := []auth.UserRead{}
-	metrics.DB.Model(&auth.User{}).Find(&users)
+	users := []authModel.UserRead{}
+	metrics.DB.Model(&authModel.User{}).Find(&users)
 
 	ctx.JSON(http.StatusOK, gin.H{"users": users})
 	return
@@ -19,7 +19,7 @@ func usersList(ctx *gin.Context) {
 
 func usersGet(ctx *gin.Context) {
 	id := ctx.Param("id")
-	usr := auth.User{}
+	usr := authModel.User{}
 	metrics.DB.First(&usr, id)
 
 	ctx.JSON(http.StatusOK, gin.H{"user": usr})
@@ -35,7 +35,7 @@ func usersEdit(ctx *gin.Context) {
 
 	xdb := metrics.DB.Debug()
 
-	usr := auth.User{}
+	usr := authModel.User{}
 	log.Println("DEBUG: [usersEdit]", usr)
 	xdb.First(&usr, id)
 
@@ -47,7 +47,7 @@ func usersEdit(ctx *gin.Context) {
 		return
 	}
 
-	xdb.Model(&usr).Updates(auth.User{
+	xdb.Model(&usr).Updates(authModel.User{
 		Email: data.Email,
 		Login: data.Login,
 	})

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"theztd/chuvicka/auth"
+	authModel "theztd/chuvicka/auth/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,11 +35,15 @@ func loginPage(ctx *gin.Context) {
 }
 
 func login(ctx *gin.Context) {
-	var usr auth.User
+
+	// Co s tim?
+	var usr authModel.User
+
+	var err error
 
 	login := ctx.PostForm("login")
 	password := ctx.PostForm("password")
-	usr, err := auth.Auth(login, password)
+	usr, err = auth.Auth(login, password)
 	if err != nil {
 		log.Println("ERR: Invalid login or password", login)
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{

@@ -6,6 +6,7 @@ import (
 	"os"
 	"theztd/chuvicka/agent"
 	"theztd/chuvicka/auth"
+	authModel "theztd/chuvicka/auth/model"
 	"theztd/chuvicka/metrics"
 	"theztd/chuvicka/server"
 
@@ -35,13 +36,15 @@ func init() {
 	auth.DBPassword = os.Getenv("AUTH_DB_PASSWORD")
 	auth.DBName = os.Getenv("AUTH_DB_NAME")
 
-	auth.JWTHash = os.Getenv("JWT_HASH")
+	auth.JWTHashSet(os.Getenv("JWT_HASH"))
 
 	metrics.DBHost = os.Getenv("AUTH_DB_HOST")
 	metrics.DBPort = os.Getenv("AUTH_DB_PORT")
 	metrics.DBUser = os.Getenv("AUTH_DB_USER")
 	metrics.DBPassword = os.Getenv("AUTH_DB_PASSWORD")
 	metrics.DBName = os.Getenv("AUTH_DB_NAME")
+
+	server.UI = os.Getenv("UI")
 }
 
 func main() {
@@ -89,21 +92,50 @@ func main() {
 		for _, url := range []string{"https://www.google.com", "http://localhost:8080/_healthz/ready.json", "https://troll.fejk.net/v1/sloooowww"} {
 			newEp := metrics.Endpoint{}
 			newEp.Url = url
+			newEp.Request.Code = 200
+			newEp.Request.Match = "*"
+			newEp.Response.Code = 399
+			newEp.Response.Match = "blahblah"
+
+			log.Println(newEp)
 			newEp.Add()
 		}
 
 	case "init-users":
-		newUser1 := auth.User{}
+		token1 := authModel.Token{Name: "org1 - karluv"}
+		token1.Hash("supertajny-token")
+
+		newUser1 := authModel.User{}
 		newUser1.Email = "kaja@pokusnak.com"
 		newUser1.Login = "karel"
 		newUser1.HashPassword("tajne")
-		newUser1.Register()
+		//newUser1.Register()
 
-		newUser2 := auth.User{}
+		newUser2 := authModel.User{}
 		newUser2.Email = "pepa@testik.com"
 		newUser2.Login = "pepa"
 		newUser2.HashPassword("heslo")
-		newUser2.Register()
+		//newUser2.Register()
+
+		org1 := authModel.Organization{}
+		org1.Name = "Organization1"
+		org1.Description = "Malinka organizace z podhuri..."
+		org1.Tokens = append(org1.Tokens, token1)
+		org1.Users = append(org1.Users, newUser1, newUser2)
+		org1.Save()
+
+	/*
+		Testing users
+	*/
+	case "test-users":
+		// validate
+
+		// var users []auth.User
+		org, err := auth.GetOrg("Organization1")
+		if err != nil {
+			log.Println("ERR: Unable to find organization with the given name", err)
+		}
+		org.Pretty()
 
 	case "auth":
 		login, password := "kaja", "tajne"

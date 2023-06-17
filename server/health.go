@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"theztd/chuvicka/auth"
+	authModel "theztd/chuvicka/auth/model"
 	"theztd/chuvicka/metrics"
 	"time"
 
@@ -35,8 +36,8 @@ type Healthz struct {
 func healthStatus(ctx *gin.Context) {
 	// Check postgresDB
 	var pgH, influxH Check
-	users := []auth.UserRead{}
-	dbErr := metrics.DB.Model(&auth.User{}).Find(&users).Limit(1).Error
+	users := []authModel.UserRead{}
+	dbErr := metrics.DB.Model(&authModel.User{}).Find(&users).Limit(1).Error
 	if dbErr == nil {
 		pgH.Status = "pass"
 	} else {

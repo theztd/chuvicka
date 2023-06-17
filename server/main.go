@@ -13,9 +13,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var VERSION string = "0.1.0-alpha01"
-
-var BucketName string
+var (
+	VERSION    string = "0.1.0-alpha01"
+	BucketName string
+	UI         string = "false"
+)
 
 //go:embed templates/*.tmpl
 var templatesFS embed.FS
@@ -35,7 +37,9 @@ func validate(ctx *gin.Context) {
 
 
 	*/
-	if headerToken == "develop" {
+	// if headerToken == "develop"
+
+	if auth.ValidetaApiToken(headerToken) {
 		log.Println("DEBUG: Authorized by X-Auth-Token")
 		ctx.Next()
 		return
@@ -93,10 +97,12 @@ func Run() {
 	}))
 
 	r.GET("/_healthz/ready.json", healthStatus)
+	if UI == "true" {
+		r.GET("/ui/", validate, index)
+	}
 
-	r.GET("/ui", validate, index)
-	r.GET("/api/metrics", validate, metricList)
-	r.POST("/api/metrics", validate, metricCreate)
+	r.GET("/api/metrics/", validate, metricList)
+	r.POST("/api/metrics/", validate, metricCreate)
 	r.DELETE("/api/metrics/:id", validate, metricDelete)
 
 	r.GET("/login", loginPage)
